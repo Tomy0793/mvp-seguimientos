@@ -28,9 +28,12 @@ function AppWrapper() {
   const location = useLocation();
   const isFormRoute = location.pathname.startsWith('/form');
 
-  // ✅ Leer usuario directo de localStorage (no usar useState)
+  // ✅ Leer usuario desde localStorage
   const stored = localStorage.getItem('usuario');
   const loggedUser = stored ? JSON.parse(stored) : null;
+
+  const isCloser = loggedUser?.role === 'CLOSER';
+  const isAdmin = loggedUser?.role === 'ADMIN';
 
   return (
     <>
@@ -43,8 +46,8 @@ function AppWrapper() {
         {/* 🟦 Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* 🟧 Panel de Closer (si está logueado y es Closer) */}
-        {loggedUser?.rol === 'closer' && (
+        {/* 🟧 Panel de Closer */}
+        {isCloser && (
           <Route path="/panel" element={<CloserLayout />}>
             <Route index element={<Objetivo />} />
             <Route path="objetivo" element={<Objetivo />} />
@@ -53,8 +56,8 @@ function AppWrapper() {
           </Route>
         )}
 
-        {/* 🟥 Panel de Admin (si está logueado y es Admin) */}
-        {loggedUser?.rol === 'admin' && (
+        {/* 🟥 Panel de Admin */}
+        {isAdmin && (
           <Route path="/panel/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="closers" element={<CloserList />} />
@@ -63,13 +66,16 @@ function AppWrapper() {
           </Route>
         )}
 
-        {/* ❌ Redirección para no logueados */}
+        {/* ❌ Redirección para usuarios no logueados */}
         {!loggedUser && (
           <Route path="/panel/*" element={<Navigate to="/login" />} />
         )}
 
         {/* 🔄 Catch all */}
-        <Route path="*" element={<Navigate to={loggedUser ? '/panel' : '/login'} />} />
+        <Route
+          path="*"
+          element={<Navigate to={loggedUser ? '/panel' : '/login'} />}
+        />
       </Routes>
 
       {!isFormRoute && <Footer />}
