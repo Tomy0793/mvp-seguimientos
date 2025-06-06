@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, ProgressBar, Row, Col } from 'react-bootstrap';
-
-// Mock de objetivos general y acumulado
-const objetivoMensual = 25; // Total deseado por todos los closers
-const progresoAcumulado = 15; // Total sumado
+import axios from 'axios';
 
 const ObjetivoGeneral = () => {
-  const porcentaje = Math.round((progresoAcumulado / objetivoMensual) * 100);
+  const [groupObjective, setGroupObjective] = useState(null);
+  const [achievedTotal, setAchievedTotal] = useState(null); // futura integración
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroupObjective = async () => {
+      try {
+        const token = localStorage.getItem('token');  
+        const res = await axios.get('http://localhost:4000/api/users/admin/group-objective', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+  
+        setGroupObjective(res.data.groupObjective);
+        setAchievedTotal(15); // temporal
+      } catch (err) {
+        console.error('Error al obtener el objetivo general:', err.response?.data || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchGroupObjective();
+  }, []);
+  
+
+  if (loading) return <p>Cargando objetivo...</p>;
+  if (!groupObjective) return <p>No se encontró el objetivo.</p>;
+
+  const porcentaje = Math.round((achievedTotal / groupObjective) * 100);
 
   return (
     <div>
@@ -17,11 +44,11 @@ const ObjetivoGeneral = () => {
           <Row>
             <Col md={6}>
               <h5>Meta de ventas:</h5>
-              <p><strong>{objetivoMensual} formularios</strong></p>
+              <p><strong>{groupObjective} formularios</strong></p>
             </Col>
             <Col md={6}>
               <h5>Progreso actual:</h5>
-              <p><strong>{progresoAcumulado} formularios</strong></p>
+              <p><strong>{achievedTotal} formularios</strong></p>
             </Col>
           </Row>
 
