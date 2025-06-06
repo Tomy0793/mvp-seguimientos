@@ -10,9 +10,7 @@ const ObjetivoGeneral = () => {
   useEffect(() => {
     const fetchGroupObjective = async () => {
       try {
-        const token = localStorage.getItem('token');
-        console.log('TOKEN ENVIADO:', token); // esto debe imprimirlo
-  
+        const token = localStorage.getItem('token');  
         const res = await axios.get('http://localhost:4000/api/users/admin/group-objective', {
           headers: {
             Authorization: `Bearer ${token}`
